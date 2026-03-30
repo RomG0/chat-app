@@ -10,7 +10,14 @@ export async function register(req, res) {
     } else {
       const newUser = new User({ username, password, userId: 2 });
       await newUser.save();
-      res.status(201).json({ message: "User registered successfully" });
+      res.status(201).json({
+        message: "User registered successfully, logging in...",
+        token: jwt.sign(
+          { userId: newUser.userId, username: newUser.username },
+          process.env.JWT_SECRET,
+          { expiresIn: "1h" },
+        ),
+      });
     }
   } catch (err) {
     res
