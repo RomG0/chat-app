@@ -43,42 +43,62 @@ const LoginPage = () => {
   };
 
   return (
-    <div>
-      <h1>Login</h1>
+    <div className="container my-5">
+      <div className="row justify-content-center">
+        <div className="col-md-6">
+          <div className="card" style={{ backgroundColor: "#dceeff" }}>
+            <div className="card-body flex flex-col h-96">
+              <h5
+                className="card-title border border-primary p-3 rounded text-primary text-center fs-3 mb-2"
+                style={{ backgroundColor: "#ffffff" }}
+              >
+                <strong>Login</strong>
+              </h5>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+              {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Username</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-            disabled={loading}
-          />
+              <form
+                onSubmit={handleSubmit}
+                className="LoginForm flex flex-col gap-3"
+              >
+                <div>
+                  <label>Username</label>
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                    disabled={loading}
+                    className="form-control"
+                  />
+                </div>
+                <div>
+                  <label>Password</label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={loading}
+                    className="form-control"
+                  />
+                </div>
+                <button
+                  className="btn btn-primary mt-3"
+                  type="submit"
+                  disabled={loading || !username || !password}
+                >
+                  {loading ? "Logging in..." : "Login"}
+                </button>
+              </form>
+
+              <p className="mt-3">
+                Don't have an account? <Link to="/register">Register</Link>
+              </p>
+            </div>
+          </div>
         </div>
-
-        <div>
-          <label>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            disabled={loading}
-          />
-        </div>
-
-        <button type="submit" disabled={loading || !username || !password}>
-          {loading ? "Logging in..." : "Login"}
-        </button>
-      </form>
-
-      <p>
-        Don't have an account? <Link to="/register">Register</Link>
-      </p>
+      </div>
     </div>
   );
 };

@@ -8,12 +8,12 @@ export async function register(req, res) {
     if (existingUser) {
       return res.status(400).json({ message: "Username already exists" });
     } else {
-      const newUser = new User({ username, password, userId: 2 });
+      const newUser = new User({ username, password });
       await newUser.save();
       res.status(201).json({
         message: "User registered successfully, logging in...",
         token: jwt.sign(
-          { userId: newUser.userId, username: newUser.username },
+          { userId: newUser._id, username: newUser.username },
           process.env.JWT_SECRET,
           { expiresIn: "1h" },
         ),
@@ -34,7 +34,7 @@ export async function login(req, res) {
       return res.status(400).json({ message: "Invalid username or password" });
     }
     const token = jwt.sign(
-      { userId: user.userId, username: user.username },
+      { userId: user._id, username: user.username },
       process.env.JWT_SECRET,
       { expiresIn: "1h" },
     );

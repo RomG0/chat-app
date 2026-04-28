@@ -3,7 +3,7 @@ import { getUser, deleteUser } from "../controllers/adminController.js";
 
 const router = express.Router();
 
-router.get("/user/:id?", (req, res) => {
+router.get("/user{/:id}", (req, res) => {
   getUser(req, res);
 });
 

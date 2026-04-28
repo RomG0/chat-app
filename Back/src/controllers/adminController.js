@@ -5,7 +5,7 @@ export const getUser = async (req, res) => {
 
   try {
     if (userId) {
-      const user = await user.findOne({ userId: userId }).select("-password");
+      const user = await user.findById(userId).select("-password");
       if (user) {
         res.status(200).json({ user });
       } else {
@@ -27,7 +27,7 @@ export const deleteUser = async (req, res) => {
 
   try {
     if (userId) {
-      const user = await user.findOneAndDelete({ userId: userId });
+      const user = await user.findByIdAndDelete(userId);
       if (user) {
         res.status(200).json({ message: "User deleted successfully" });
       } else {

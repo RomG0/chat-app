@@ -7,17 +7,25 @@ export const sendMessage = async (req, res) => {
   try {
     const newMessage = new Message({ content, sender });
     await newMessage.save();
-    res.status(201).json({ message: "Message sent successfully", data: newMessage });
+    res
+      .status(201)
+      .json({ message: "Message sent successfully", data: newMessage });
   } catch (err) {
-    res.status(500).json({ message: "Error sending message", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Error sending message", error: err.message });
   }
 };
 
 export const getMessages = async (req, res) => {
   try {
-    const messages = await Message.find().populate('sender', 'username').sort({ timestamp: 1 });
+    const messages = await Message.find()
+      .populate("sender", "username isAdmin")
+      .sort({ timestamp: 1 });
     res.status(200).json({ messages });
   } catch (err) {
-    res.status(500).json({ message: "Error retrieving messages", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Error retrieving messages", error: err.message });
   }
 };
