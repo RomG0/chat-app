@@ -18,7 +18,7 @@ const LoginPage = () => {
     e.preventDefault();
     setError(null);
     setLoading(true);
-
+    // YZ: axios
     try {
       const res = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
@@ -32,7 +32,7 @@ const LoginPage = () => {
         setError(data.message || "Invalid username or password.");
         return;
       }
-
+      // YZ: localstorage??!!
       localStorage.setItem("token", data.token);
       navigate("/");
     } catch {

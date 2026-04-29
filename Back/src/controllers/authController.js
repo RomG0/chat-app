@@ -9,6 +9,7 @@ export async function register(req, res) {
       return res.status(400).json({ message: "Username already exists" });
     } else {
       const newUser = new User({ username, password });
+      // YZ: passwords are saved as plaintext in the DB?
       await newUser.save();
       res.status(201).json({
         message: "User registered successfully, logging in...",
