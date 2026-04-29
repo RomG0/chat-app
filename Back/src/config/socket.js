@@ -40,6 +40,7 @@ export const initializeSocket = (io) => {
       socketId: socket.id,
     });
     if (socket.user.isAdmin) {
+      // YZ: does the server can trust what't in the socket?
       adminSockets.add(socket.id);
     }
     emitToAdmins("connectedUsers", connectedUsers);

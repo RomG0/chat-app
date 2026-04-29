@@ -6,6 +6,7 @@ import AdminPanel from "./pages/AdminPanel";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { SocketProvider } from "./contexts/SocketContext";
 
+// YZ: Any user can see Admin panel console??
 const App = () => {
   return (
     <SocketProvider>
