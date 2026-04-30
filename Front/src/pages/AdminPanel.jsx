@@ -57,6 +57,7 @@ const AdminPanel = () => {
     };
   }, [navigate, socket]);
 
+  // YZ: why admin can delete only connected users?
   return (
     <div className="container my-5">
       <h5 className="mb-4">Admin Panel - Connected Users</h5>
