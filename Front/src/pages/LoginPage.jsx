@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router";
+import { useSocket } from "../contexts/SocketContext";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -7,6 +8,8 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  console.log(useSocket());
+  const { setToken } = useSocket();
 
   useEffect(() => {
     if (localStorage.getItem("token")) {
@@ -34,9 +37,10 @@ const LoginPage = () => {
       }
 
       localStorage.setItem("token", data.token);
+      setToken(data.token);
       navigate("/");
     } catch {
-      setError("Could not reach the server.");
+      setError("Could not reach the server");
     } finally {
       setLoading(false);
     }
@@ -72,7 +76,7 @@ const LoginPage = () => {
                     className="form-control"
                   />
                 </div>
-                <div>
+                <div className="mt-3">
                   <label>Password</label>
                   <input
                     type="password"

@@ -7,12 +7,11 @@ const HomePage = () => {
   const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
   const [error, setError] = useState(null);
-  const socket = useSocket();
+  const { socket } = useSocket();
 
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
     if (!token) {
       navigate("/login");
       return;
@@ -45,7 +44,7 @@ const HomePage = () => {
     socket.on("newMessage", (message) => {
       setMessages((prevMessages) => [...prevMessages, message]);
     });
-  }, [navigate, socket]);
+  }, [navigate, socket, token]);
 
   const sendMessage = async (e) => {
     e.preventDefault();
@@ -65,7 +64,7 @@ const HomePage = () => {
   return (
     <div className="container my-5">
       <div className="row justify-content-center">
-        <div className="col-md-6">
+        <div className="col-md-12">
           <div className="card" style={{ backgroundColor: "#dceeff" }}>
             <div className="card-body flex flex-col h-96">
               <h5
@@ -79,21 +78,27 @@ const HomePage = () => {
                 {messages.map((msg, index) => {
                   if (msg.sender.isAdmin) {
                     return (
-                      <div
+                      <p
                         key={index}
-                        className="message border border-danger rounded p-2 mb-2 w-fit max-w-full break-words bg-danger text-white"
+                        className="message border border-danger rounded p-2 mb-2 w-fit max-w-full break-words text-danger"
+                        style={{ backgroundColor: "#fff3f3" }}
                       >
                         <strong>{msg.sender.username} (Admin):</strong>{" "}
                         {msg.content}
-                      </div>
+                      </p>
                     );
                   } else {
                     return (
                       <div
                         key={index}
-                        className="message border border-primary rounded p-2 mb-2 w-fit max-w-full inline-block break-words bg-primary text-white"
+                        className="messageContainer inline-block"
                       >
-                        <strong>{msg.sender.username}:</strong> {msg.content}
+                        <p
+                          key={index}
+                          className="message border border-primary rounded p-2 mb-2 fit-content w-fit max-w-full break-words bg-primary text-white d-inline-block"
+                        >
+                          <strong>{msg.sender.username}:</strong> {msg.content}
+                        </p>
                       </div>
                     );
                   }

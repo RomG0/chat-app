@@ -6,7 +6,7 @@ import { useSocket } from "../contexts/SocketContext";
 const AdminPanel = () => {
   const navigate = useNavigate();
   const [connectedUsers, setConnectedUsers] = useState(null);
-  const socket = useSocket();
+  const { socket } = useSocket();
 
   useEffect(() => {
     if (!localStorage.getItem("token")) {
