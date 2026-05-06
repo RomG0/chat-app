@@ -76,7 +76,7 @@ const RegisterPage = () => {
                   />
                 </div>
 
-                <div className="mb-3">
+                <div className="mt-3">
                   <label>Password</label>
                   <input
                     type="password"
@@ -90,7 +90,7 @@ const RegisterPage = () => {
 
                 <button
                   type="submit"
-                  className="btn btn-primary"
+                  className="btn btn-primary mt-3"
                   disabled={loading || !username || !password}
                 >
                   {loading ? "Registering..." : "Register"}

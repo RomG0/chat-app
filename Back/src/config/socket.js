@@ -1,12 +1,11 @@
 import jwt from "jsonwebtoken";
 import Message from "../models/Message.js";
 import User from "../models/User.js";
-import { connect } from "mongoose";
 
 export const initializeSocket = (io) => {
   // Socket authentication middleware
   io.use(async (socket, next) => {
-    const token = socket.handshake.auth.token;
+    const token = socket.handshake.header.cookie;
     if (!token) {
       return next(new Error("Authentication error: No token provided"));
     }
@@ -37,6 +36,8 @@ export const initializeSocket = (io) => {
     console.log("A user connected: " + socket.id + " " + socket.user.username);
     connectedUsers.push({
       username: socket.user.username,
+      userId: socket.user._id,
+      isAdmin: socket.user.isAdmin,
       socketId: socket.id,
     });
     if (socket.user.isAdmin) {

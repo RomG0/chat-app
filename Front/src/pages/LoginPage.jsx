@@ -8,14 +8,6 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  console.log(useSocket());
-  const { setToken } = useSocket();
-
-  useEffect(() => {
-    if (localStorage.getItem("token")) {
-      navigate("/");
-    }
-  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,8 +28,6 @@ const LoginPage = () => {
         return;
       }
 
-      localStorage.setItem("token", data.token);
-      setToken(data.token);
       navigate("/");
     } catch {
       setError("Could not reach the server");

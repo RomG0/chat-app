@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useSocket } from "../contexts/SocketContext";
+import { Card, Col, Container, Row } from "react-bootstrap";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -17,36 +20,40 @@ const HomePage = () => {
       return;
     }
 
-    if (!socket) return;
-
-    // Fetch messages
-    fetch("http://localhost:5000/api/chat/messages", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
+    const getMessages = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/chat/messages", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         if (res.status === 401 || res.status === 403) {
           localStorage.removeItem("token");
           navigate("/login");
           return;
         }
-        return res.json();
-      })
-      .then((data) => {
-        if (data) {
-          setMessages(data.messages);
+        if (res.data) {
+          setMessages(res.data.messages);
         }
-      })
-      .catch((error) => {
+      } catch (err) {
         console.error("Error fetching messages:", error);
-      });
+      }
+    };
 
-    // Listen for new messages
-    socket.on("newMessage", (message) => {
+    getMessages();
+
+    if (!socket) return;
+
+    const handleNewMessage = (message) => {
       setMessages((prevMessages) => [...prevMessages, message]);
-    });
+    };
+
+    socket.on("newMessage", handleNewMessage);
+
+    return () => {
+      socket.off("newMessage", handleNewMessage);
+    };
   }, [navigate, socket, token]);
 
-  const sendMessage = async (e) => {
+  const sendMessage = (e) => {
     e.preventDefault();
     setError(null);
 
@@ -62,53 +69,105 @@ const HomePage = () => {
   };
 
   return (
-    <div className="container my-5">
-      <div className="row justify-content-center">
-        <div className="col-md-12">
-          <div className="card" style={{ backgroundColor: "#dceeff" }}>
-            <div className="card-body flex flex-col h-96">
-              <h5
-                className="card-title border border-primary p-3 rounded text-primary text-center fs-3 mb-2"
+    <Container className="my-5">
+      <Row className="justify-content-center">
+        <Col md={10} className="d-flex">
+          <Card style={{ backgroundColor: "#dceeff" }}>
+            <Card.Body>
+              <Card.Title
+                className="border border-primary p-3 rounded text-primary text-center fs-3 mb-2"
                 style={{ backgroundColor: "#ffffff" }}
               >
                 <strong>Chat App</strong>
-              </h5>
+              </Card.Title>
 
-              <div className="messages flex-1 overflow-y-auto">
+              <div
+                style={{
+                  height: "590px",
+                  overflowY: "auto",
+                  marginBottom: "20px",
+                }}
+              >
                 {messages.map((msg, index) => {
-                  if (msg.sender.isAdmin) {
-                    return (
-                      <p
-                        key={index}
-                        className="message border border-danger rounded p-2 mb-2 w-fit max-w-full break-words text-danger"
-                        style={{ backgroundColor: "#fff3f3" }}
-                      >
-                        <strong>{msg.sender.username} (Admin):</strong>{" "}
-                        {msg.content}
-                      </p>
-                    );
+                  if (msg.sender) {
+                    if (
+                      msg.sender.username ==
+                      jwtDecode(localStorage.getItem("token")).username
+                    ) {
+                      return (
+                        <div className="d-flex flex-row justify-content-start">
+                          <div key={index}>
+                            <p
+                              className="border border-primary bg-primary text-white p-2 mb-2 rounded-3 text-wrap"
+                              style={{
+                                wordBreak: "break-all",
+                              }}
+                            >
+                              <strong>{msg.sender.username}:</strong>{" "}
+                              {msg.content}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    } else {
+                      if (msg.sender.isAdmin) {
+                        return (
+                          <div className="inline-block flex-row justify-content-center">
+                            <div key={index}>
+                              <p
+                                className="border border-danger text-danger p-2 mb-2 rounded-3 text-wrap"
+                                style={{
+                                  backgroundColor: "#fce1e1",
+                                  wordBreak: "break-all",
+                                }}
+                              >
+                                <strong>{msg.sender.username} (Admin):</strong>{" "}
+                                {msg.content}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      } else {
+                        return (
+                          <div className="d-flex flex-row justify-content-end">
+                            <div key={index}>
+                              <p
+                                className="border border-primary bg-white text-primary p-2 mb-2 rounded-3 text-wrap"
+                                style={{
+                                  wordBreak: "break-all",
+                                }}
+                              >
+                                <strong>{msg.sender.username}:</strong>{" "}
+                                {msg.content}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      }
+                    }
                   } else {
                     return (
-                      <div
-                        key={index}
-                        className="messageContainer inline-block"
-                      >
-                        <p
-                          key={index}
-                          className="message border border-primary rounded p-2 mb-2 fit-content w-fit max-w-full break-words bg-primary text-white d-inline-block"
-                        >
-                          <strong>{msg.sender.username}:</strong> {msg.content}
-                        </p>
+                      <div className="d-flex flex-row justify-content-end">
+                        <div key={index}>
+                          <p
+                            className="border border-secondary bg-light text-secondary p-2 mb-2 rounded-3 text-wrap"
+                            style={{
+                              wordBreak: "break-all",
+                            }}
+                          >
+                            <strong>Deleted User:</strong> {msg.content}
+                          </p>
+                        </div>
                       </div>
                     );
                   }
                 })}
               </div>
-              <form onSubmit={sendMessage} className="newMessageForm mt-3">
-                <div className="newMessage d-flex">
+              <form onSubmit={sendMessage} className="mt-3">
+                <div className="d-flex">
                   <input
-                    type="text"
                     name="messageInput"
+                    type="text"
                     placeholder="Type your message..."
                     className="form-control"
                   />
@@ -117,11 +176,11 @@ const HomePage = () => {
                   </button>
                 </div>
               </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   );
 };
 

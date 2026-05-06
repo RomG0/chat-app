@@ -1,35 +1,65 @@
-import {Container, Nav, Navbar, NavDropdown} from "react-bootstrap";
+import { Container, Nav, Navbar } from "react-bootstrap";
 import { useNavigate } from "react-router";
-import axios from "axios";
-
+import { useEffect, useState } from "react";
+import { jwtDecode } from "jwt-decode";
 const NavigationBar = () => {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const token = localStorage.getItem("token");
 
-    const handleLogout = () => {
-      localStorage.removeItem("token");
-      navigate("/login");
-    };
+  useEffect(() => {
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setUser(decoded);
+      } catch (error) {
+        console.error("Invalid token", error);
+        localStorage.removeItem("token");
+        setUser(null);
+      }
+    } else {
+      setUser(null);
+    }
+  }, [token]);
 
-    const token = localStorage.getItem("token");
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
+    navigate("/login");
+  };
 
-    axios.get("http://localhost:5000/api/auth/current", {
-        body: { token: token },
-      })
-      .then((res) => {
-        const user = res.data.user;
-      });
+  if (!user) {
+    return;
+  }
 
-    return (
-        <Navbar className="bg-body-tertiary" expand="lg">
-            <Container>
-                <Navbar.Brand href="/">Chat App</Navbar.Brand>
-                <Navbar.Toggle aria-controls="basic-navbar-nav" />
-                <Navbar.Collapse id="basic-navbar-nav">
-                    <Nav className="me-auto">
-                        <Nav.Link href="/">Home</Nav.Link>
-                        {isAdmin && (
-                            <Nav.Link href="/admin">Admin Panel</Nav.Link>
-                        )}
-                        <Nav.Brand onClick={handleLogout} style={{ cursor: "pointer" }}>
-                            Logout
-                        </Nav.Brand>
+  return (
+    <Navbar className="bg-body-tertiary" expand="lg">
+      <Container>
+        <Navbar.Brand>
+          Hello, <strong>{user.username}</strong>
+        </Navbar.Brand>
+
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="me-auto">
+            <Nav.Link href="/">Home</Nav.Link>
+
+            {user.isAdmin && (
+              <Nav.Link href="/admin" className="text-danger fw-bold">
+                Admin Panel
+              </Nav.Link>
+            )}
+          </Nav>
+
+          <Nav>
+            <Nav.Link onClick={handleLogout} style={{ cursor: "pointer" }}>
+              Logout
+            </Nav.Link>
+          </Nav>
+        </Navbar.Collapse>
+      </Container>
+    </Navbar>
+  );
+};
+
+export default NavigationBar;
