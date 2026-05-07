@@ -7,6 +7,7 @@ import authRoutes from "./routes/authRoute.js";
 import chatRoutes from "./routes/chatRoute.js";
 import adminRoutes from "./routes/adminRoute.js";
 import { initializeSocket } from "./config/socket.js";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
@@ -15,10 +16,12 @@ app.use(
   cors({
     origin: "http://localhost:5173",
     methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
   }),
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 const server = http.createServer(app);
 

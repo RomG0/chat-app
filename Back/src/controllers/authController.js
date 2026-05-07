@@ -23,14 +23,14 @@ export async function register(req, res) {
       );
       res
         .status(201)
+        .cookie("token", token, {
+          httpOnly: true,
+          // secure: true,
+          // sameSite: "Strict",
+          maxAge: 3600000,
+        })
         .json({
           message: "User registered successfully, logging in...",
-        })
-        .cookie(token, {
-          httpOnly: true,
-          secure: true,
-          sameSite: "Strict",
-          maxAge: 3600000,
         });
     }
   } catch (err) {
@@ -53,16 +53,21 @@ export async function login(req, res) {
       process.env.JWT_SECRET,
       { expiresIn: "1h" },
     );
-    res.status(200).json({ message: "Login successful" }).cookie({
-      httpOnly: true,
-      secure: true,
-      sameSite: "Strict",
-      maxAge: 3600000,
-    });
+    res
+      .status(200)
+      .cookie("token", token, {
+        httpOnly: true,
+        // secure: true,
+        // sameSite: "Strict",
+        maxAge: 3600000,
+      })
+      .json({ message: "Login successful" });
   } catch (err) {
     res.status(500).json({ message: "Error logging in", error: err.message });
   }
 }
+
+export async function logout(req, res) {}
 
 // export async function getUser(req, res) {
 //   try {
