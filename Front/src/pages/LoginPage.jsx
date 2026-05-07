@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate, Link } from "react-router";
-import { useSocket } from "../contexts/SocketContext";
+import axios from "axios";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -15,15 +15,16 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
+      const loginData = {
+        username,
+        password,
+      };
+      const res = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        loginData,
+      );
 
-      const data = await res.json();
-
-      if (!res.ok) {
+      if (!(res.status === 200)) {
         setError(data.message || "Invalid username or password.");
         return;
       }

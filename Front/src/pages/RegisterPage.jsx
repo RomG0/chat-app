@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate, Link } from "react-router";
-import { useSocket } from "../contexts/SocketContext";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -8,13 +7,6 @@ const RegisterPage = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { setToken } = useSocket();
-
-  useEffect(() => {
-    if (localStorage.getItem("token")) {
-      navigate("/");
-    }
-  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,8 +27,6 @@ const RegisterPage = () => {
         return;
       }
 
-      localStorage.setItem("token", data.token);
-      setToken(data.token);
       navigate("/");
     } catch {
       setError("Could not reach the server.");

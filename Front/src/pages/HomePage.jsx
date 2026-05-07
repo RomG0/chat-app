@@ -12,21 +12,11 @@ const HomePage = () => {
   const [error, setError] = useState(null);
   const { socket } = useSocket();
 
-  const token = localStorage.getItem("token");
-
   useEffect(() => {
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-
     const getMessages = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/chat/messages", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axios.get("http://localhost:5000/api/chat/messages");
         if (res.status === 401 || res.status === 403) {
-          localStorage.removeItem("token");
           navigate("/login");
           return;
         }
@@ -51,7 +41,7 @@ const HomePage = () => {
     return () => {
       socket.off("newMessage", handleNewMessage);
     };
-  }, [navigate, socket, token]);
+  }, [navigate, socket]);
 
   const sendMessage = (e) => {
     e.preventDefault();
