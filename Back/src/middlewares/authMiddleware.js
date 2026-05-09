@@ -12,21 +12,20 @@ export const authenticateToken = (req, res, next) => {
     if (err) {
       return res.status(403).json({ message: "Invalid token" });
     }
-    req.user = user; // user contains userId and username
+    req.user = user;
     next();
   });
 };
 
 export const requireAdmin = (req, res, next) => {
-  authenticateToken(req, res, () => {
-    User.findById(req.user.userId)
-      .select("isAdmin")
-      .then((user) => {
-        if (user.isAdmin) {
-          next();
-        } else {
-          res.status(403).json({ message: "Admin access required" });
-        }
-      });
+  authenticateToken(req, res, async () => {
+    try {
+      const user = await User.findById(req.user.userId).select("isAdmin");
+      if (!user) return res.status(401).json({ message: "User no longer exists" });
+      if (!user.isAdmin) return res.status(403).json({ message: "Admin access required" });
+      next();
+    } catch (err) {
+      return res.status(500).json({ message: "Authorization check failed" });
+    }
   });
 };

@@ -1,14 +1,18 @@
 import jwt from "jsonwebtoken";
 import Message from "../models/Message.js";
 import User from "../models/User.js";
+import cookie from "cookie";
 
 export const initializeSocket = (io) => {
   // Socket authentication middleware
   io.use(async (socket, next) => {
-    const token = socket.handshake.header.cookie;
-    if (!token) {
+    const handshakeCookie = socket.handshake.headers.cookie;
+    if (!handshakeCookie)
       return next(new Error("Authentication error: No token provided"));
-    }
+    const { token } = cookie.parse(handshakeCookie);
+    if (!token)
+      return next(new Error("Authentication error: No token provided"));
+
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       const user = await User.findById(decoded.userId);
