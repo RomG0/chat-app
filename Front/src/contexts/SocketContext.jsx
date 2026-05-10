@@ -16,24 +16,17 @@ export const useSocket = () => {
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const socketRef = useRef(null);
-  const [token, setToken] = useState(localStorage.getItem("token"));
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem("user") || "null"));
 
   useEffect(() => {
-    if (!token) return;
-
-    if (socketRef.current) return;
+    if (!user) return;
 
     const newSocket = io("http://localhost:5000", {
-      auth: { token },
+      withCredentials: true,
     });
 
     newSocket.on("connect_error", (err) => {
       console.error("Socket connection error:", err.message);
-      if (err.message.includes("Authentication error")) {
-        localStorage.removeItem("token");
-        setSocket(null);
-        setToken(null);
-      }
     });
 
     newSocket.on("connect", () => {
@@ -46,10 +39,10 @@ export const SocketProvider = ({ children }) => {
       socketRef.current = null;
       setSocket(null);
     };
-  }, [token]);
+  }, [user]);
 
   return (
-    <SocketContext.Provider value={{ socket, token, setToken }}>
+    <SocketContext.Provider value={{ socket, user, setUser }}>
       {children}
     </SocketContext.Provider>
   );

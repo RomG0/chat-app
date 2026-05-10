@@ -1,36 +1,22 @@
 import { Container, Nav, Navbar } from "react-bootstrap";
 import { useNavigate } from "react-router";
-import { useEffect, useState } from "react";
-import { jwtDecode } from "jwt-decode";
+import axios from "axios";
+import { useSocket } from "./contexts/SocketContext";
+
 const NavigationBar = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-  const token = localStorage.getItem("token");
+  const { user, setUser } = useSocket();
 
-  useEffect(() => {
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        setUser(decoded);
-      } catch (error) {
-        console.error("Invalid token", error);
-        localStorage.removeItem("token");
-        setUser(null);
-      }
-    } else {
-      setUser(null);
-    }
-  }, [token]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
+  const handleLogout = async () => {
+    try {
+      await axios.post("http://localhost:5000/api/auth/logout");
+    } catch {}
+    localStorage.removeItem("user");
     setUser(null);
     navigate("/login");
   };
 
-  if (!user) {
-    return;
-  }
+  if (!user) return null;
 
   return (
     <Navbar className="bg-body-tertiary" expand="lg">

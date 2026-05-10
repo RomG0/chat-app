@@ -12,15 +12,9 @@ const AdminPanel = () => {
 
   const getAllUsers = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/admin/getUsers", {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      const res = await axios.get("http://localhost:5000/api/admin/getUsers");
       if (res.status === 200) {
         setAllUsers(res.data.users);
-      }
-      if (res.status === 403) {
-        localStorage.removeItem("token");
-        navigate("/login");
       }
     } catch (err) {
       console.error("Error fetching all users:", err);
@@ -28,65 +22,56 @@ const AdminPanel = () => {
   };
 
   const deleteUser = async (qUserId) => {
-    const res = await fetch(`http://localhost:5000/api/admin/user/${qUserId}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    });
-    if (res.status === 200) {
+    try {
+      await axios.delete(`http://localhost:5000/api/admin/user/${qUserId}`);
       setAllUsers((prevUsers) => prevUsers.filter((u) => u._id !== qUserId));
       setConnectedUsers((prevUsers) =>
         prevUsers.filter((u) => u.userId !== qUserId),
       );
-    } else if (res.status === 404 || res.status === 400 || res.status === 500) {
-      console.error("Error deleting user:", res.status, res.message);
+    } catch (err) {
+      console.error("Error deleting user:", err.response?.status, err.response?.data?.message);
     }
   };
 
   const giveAdmin = async (qUserId) => {
-    const res = await fetch(`http://localhost:5000/api/admin/user/${qUserId}`, {
-      method: "PUT",
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    });
-    if (res.status === 200) {
+    try {
+      await axios.put(`http://localhost:5000/api/admin/user/${qUserId}`);
       console.log("User is now an admin");
+    } catch (err) {
+      console.error("Error promoting user:", err.response?.data?.message);
     }
   };
 
   useEffect(() => {
-    if (!localStorage.getItem("token")) {
-      navigate("/login");
-    }
-
-    console.log("use effect ran, token exists, socket:", socket);
-
     if (!socket) return;
-
-    console.log("socket exists!");
 
     socket.emit("getConnectedUsers");
 
-    console.log("Tried to get connected users!");
-
-    socket.on("connectedUsers", (users) => {
+    const onConnectedUsers = (users) => {
       setConnectedUsers(users);
-      console.log("Received connected users!", users);
-    });
+    };
+
+    const onError = (err) => {
+      if (err?.message === "Unauthorized") {
+        navigate("/login");
+      }
+    };
+
+    socket.on("connectedUsers", onConnectedUsers);
+    socket.on("error", onError);
 
     getAllUsers();
 
-    socket.on("error", (err) => {
-      console.error("Socket error:", err);
-      if (err.message === "Unauthorized") {
-        localStorage.removeItem("token");
-        navigate("/login");
-      }
-    });
+    return () => {
+      socket.off("connectedUsers", onConnectedUsers);
+      socket.off("error", onError);
+    };
   }, [navigate, socket]);
 
   const nonConnectedUsers = allUsers.filter(
     (dbuser) => !connectedUsers.some((cUser) => cUser.userId === dbuser._id),
   );
-  // YZ: why admin can delete only connected users?
+
   return (
     <div className="container my-5">
       <div className="row justify-content-center">
@@ -100,7 +85,7 @@ const AdminPanel = () => {
                 <strong>Admin Panel</strong>
               </h2>
               <h5 className="mb-2 text-center text-primary">Connected Users</h5>
-              {connectedUsers ? (
+              {connectedUsers.length > 0 ? (
                 <ul className="list-group">
                   {connectedUsers.map((user, index) => (
                     <li key={index} className="list-group-item">
@@ -113,18 +98,14 @@ const AdminPanel = () => {
                       {!user.isAdmin && (
                         <button
                           className="adminButton btn btn-sm btn-outline-primary float-end me-2"
-                          onClick={() => {
-                            giveAdmin(user.userId);
-                          }}
+                          onClick={() => giveAdmin(user.userId)}
                         >
                           Make Admin
                         </button>
                       )}
                       <button
                         className="deleteButton btn btn-sm btn-outline-danger float-end"
-                        onClick={() => {
-                          deleteUser(user.userId);
-                        }}
+                        onClick={() => deleteUser(user.userId)}
                       >
                         Delete
                       </button>
@@ -137,7 +118,7 @@ const AdminPanel = () => {
               <h5 className="mt-3 mb-2 text-center text-primary">
                 Non-connected Users
               </h5>
-              {nonConnectedUsers ? (
+              {nonConnectedUsers.length > 0 ? (
                 <ul className="list-group">
                   {nonConnectedUsers.map((user, index) => (
                     <li key={index} className="list-group-item">
@@ -150,18 +131,14 @@ const AdminPanel = () => {
                       {!user.isAdmin && (
                         <button
                           className="adminButton btn btn-sm btn-outline-primary float-end"
-                          onClick={() => {
-                            giveAdmin(user._id);
-                          }}
+                          onClick={() => giveAdmin(user._id)}
                         >
                           Make Admin
                         </button>
                       )}
                       <button
                         className="deleteButton btn btn-sm btn-outline-danger float-end"
-                        onClick={() => {
-                          deleteUser(user._id);
-                        }}
+                        onClick={() => deleteUser(user._id)}
                       >
                         Delete
                       </button>

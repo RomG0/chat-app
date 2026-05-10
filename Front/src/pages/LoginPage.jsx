@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router";
 import axios from "axios";
+import { useSocket } from "../contexts/SocketContext";
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { setUser } = useSocket();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -15,23 +17,19 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      const loginData = {
+      const { data } = await axios.post("http://localhost:5000/api/auth/login", {
         username,
         password,
-      };
-      const res = await axios.post(
-        "http://localhost:5000/api/auth/login",
-        loginData,
-      );
-
-      if (!(res.status === 200)) {
-        setError(data.message || "Invalid username or password.");
-        return;
-      }
-
+      });
+      localStorage.setItem("user", JSON.stringify(data.user));
+      setUser(data.user);
       navigate("/");
-    } catch {
-      setError("Could not reach the server");
+    } catch (err) {
+      if (err.response) {
+        setError(err.response.data?.message || "Invalid username or password.");
+      } else {
+        setError("Could not reach the server.");
+      }
     } finally {
       setLoading(false);
     }

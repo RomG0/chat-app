@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router";
+import axios from "axios";
+import { useSocket } from "../contexts/SocketContext";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
+  const { setUser } = useSocket();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -14,22 +17,19 @@ const RegisterPage = () => {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+      const { data } = await axios.post("http://localhost:5000/api/auth/register", {
+        username,
+        password,
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.message || "Couldn't register user.");
-        return;
-      }
-
+      localStorage.setItem("user", JSON.stringify(data.user));
+      setUser(data.user);
       navigate("/");
-    } catch {
-      setError("Could not reach the server.");
+    } catch (err) {
+      if (err.response) {
+        setError(err.response.data?.message || "Couldn't register user.");
+      } else {
+        setError("Could not reach the server.");
+      }
     } finally {
       setLoading(false);
     }

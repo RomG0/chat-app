@@ -4,27 +4,27 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useSocket } from "../contexts/SocketContext";
 import { Card, Col, Container, Row } from "react-bootstrap";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const { socket, user } = useSocket();
   const [messages, setMessages] = useState([]);
   const [error, setError] = useState(null);
-  const { socket } = useSocket();
 
   useEffect(() => {
     const getMessages = async () => {
       try {
         const res = await axios.get("http://localhost:5000/api/chat/messages");
-        if (res.status === 401 || res.status === 403) {
-          navigate("/login");
-          return;
-        }
         if (res.data) {
           setMessages(res.data.messages);
         }
       } catch (err) {
-        console.error("Error fetching messages:", error);
+        if (err.response?.status === 401 || err.response?.status === 403) {
+          navigate("/login");
+          return;
+        }
+        console.error("Error fetching messages:", err);
+        setError("Could not load messages.");
       }
     };
 
@@ -52,8 +52,8 @@ const HomePage = () => {
         content: e.target.messageInput.value,
       });
       e.target.messageInput.value = "";
-    } catch (error) {
-      console.error("Error sending message:", error);
+    } catch (err) {
+      console.error("Error sending message:", err);
       setError("Failed to send message. Please try again.");
     }
   };
@@ -71,6 +71,8 @@ const HomePage = () => {
                 <strong>Chat App</strong>
               </Card.Title>
 
+              {error && <p style={{ color: "red" }}>{error}</p>}
+
               <div
                 style={{
                   height: "590px",
@@ -80,18 +82,13 @@ const HomePage = () => {
               >
                 {messages.map((msg, index) => {
                   if (msg.sender) {
-                    if (
-                      msg.sender.username ==
-                      jwtDecode(localStorage.getItem("token")).username
-                    ) {
+                    if (msg.sender.username === user?.username) {
                       return (
-                        <div className="d-flex flex-row justify-content-start">
-                          <div key={index}>
+                        <div key={index} className="d-flex flex-row justify-content-start">
+                          <div>
                             <p
                               className="border border-primary bg-primary text-white p-2 mb-2 rounded-3 text-wrap"
-                              style={{
-                                wordBreak: "break-all",
-                              }}
+                              style={{ wordBreak: "break-all" }}
                             >
                               <strong>{msg.sender.username}:</strong>{" "}
                               {msg.content}
@@ -102,8 +99,8 @@ const HomePage = () => {
                     } else {
                       if (msg.sender.isAdmin) {
                         return (
-                          <div className="inline-block flex-row justify-content-center">
-                            <div key={index}>
+                          <div key={index} className="inline-block flex-row justify-content-center">
+                            <div>
                               <p
                                 className="border border-danger text-danger p-2 mb-2 rounded-3 text-wrap"
                                 style={{
@@ -119,13 +116,11 @@ const HomePage = () => {
                         );
                       } else {
                         return (
-                          <div className="d-flex flex-row justify-content-end">
-                            <div key={index}>
+                          <div key={index} className="d-flex flex-row justify-content-end">
+                            <div>
                               <p
                                 className="border border-primary bg-white text-primary p-2 mb-2 rounded-3 text-wrap"
-                                style={{
-                                  wordBreak: "break-all",
-                                }}
+                                style={{ wordBreak: "break-all" }}
                               >
                                 <strong>{msg.sender.username}:</strong>{" "}
                                 {msg.content}
@@ -137,13 +132,11 @@ const HomePage = () => {
                     }
                   } else {
                     return (
-                      <div className="d-flex flex-row justify-content-end">
-                        <div key={index}>
+                      <div key={index} className="d-flex flex-row justify-content-end">
+                        <div>
                           <p
                             className="border border-secondary bg-light text-secondary p-2 mb-2 rounded-3 text-wrap"
-                            style={{
-                              wordBreak: "break-all",
-                            }}
+                            style={{ wordBreak: "break-all" }}
                           >
                             <strong>Deleted User:</strong> {msg.content}
                           </p>
