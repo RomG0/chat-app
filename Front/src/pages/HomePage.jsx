@@ -14,7 +14,7 @@ const HomePage = () => {
   useEffect(() => {
     const getMessages = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/chat/messages");
+        const res = await axios.get("https://localhost:5000/api/chat/messages");
         if (res.data) {
           setMessages(res.data.messages);
         }
@@ -59,11 +59,11 @@ const HomePage = () => {
   };
 
   return (
-    <Container className="my-5">
-      <Row className="justify-content-center">
-        <Col md={10} className="d-flex">
-          <Card style={{ backgroundColor: "#dceeff" }}>
-            <Card.Body>
+    <Container fluid className="vh-100 d-flex flex-column p-3 p-md-5">
+      <Row className="justify-content-center align-items-center h-100">
+        <Col xs={12} sm={10} md={8} lg={6} className="h-100 d-flex flex-column">
+          <Card className="flex-grow-1" style={{ backgroundColor: "#dceeff" }}>
+            <Card.Body className="d-flex flex-column h-100">
               <Card.Title
                 className="border border-primary p-3 rounded text-primary text-center fs-3 mb-2"
                 style={{ backgroundColor: "#ffffff" }}
@@ -74,8 +74,8 @@ const HomePage = () => {
               {error && <p style={{ color: "red" }}>{error}</p>}
 
               <div
+                className="flex-grow-1 p-2"
                 style={{
-                  height: "590px",
                   overflowY: "auto",
                   marginBottom: "20px",
                 }}
@@ -84,7 +84,10 @@ const HomePage = () => {
                   if (msg.sender) {
                     if (msg.sender.username === user?.username) {
                       return (
-                        <div key={index} className="d-flex flex-row justify-content-start">
+                        <div
+                          key={index}
+                          className="d-flex flex-row justify-content-start"
+                        >
                           <div>
                             <p
                               className="border border-primary bg-primary text-white p-2 mb-2 rounded-3 text-wrap"
@@ -99,7 +102,10 @@ const HomePage = () => {
                     } else {
                       if (msg.sender.isAdmin) {
                         return (
-                          <div key={index} className="inline-block flex-row justify-content-center">
+                          <div
+                            key={index}
+                            className="inline-block flex-row justify-content-center"
+                          >
                             <div>
                               <p
                                 className="border border-danger text-danger p-2 mb-2 rounded-3 text-wrap"
@@ -116,7 +122,10 @@ const HomePage = () => {
                         );
                       } else {
                         return (
-                          <div key={index} className="d-flex flex-row justify-content-end">
+                          <div
+                            key={index}
+                            className="d-flex flex-row justify-content-end"
+                          >
                             <div>
                               <p
                                 className="border border-primary bg-white text-primary p-2 mb-2 rounded-3 text-wrap"
@@ -132,7 +141,10 @@ const HomePage = () => {
                     }
                   } else {
                     return (
-                      <div key={index} className="d-flex flex-row justify-content-end">
+                      <div
+                        key={index}
+                        className="d-flex flex-row justify-content-end"
+                      >
                         <div>
                           <p
                             className="border border-secondary bg-light text-secondary p-2 mb-2 rounded-3 text-wrap"

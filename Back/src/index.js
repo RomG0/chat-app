@@ -1,5 +1,5 @@
 import express from "express";
-import http from "http";
+import https from "https";
 import cors from "cors";
 import { Server } from "socket.io";
 import { connectDB } from "./config/database.js";
@@ -8,13 +8,14 @@ import chatRoutes from "./routes/chatRoute.js";
 import adminRoutes from "./routes/adminRoute.js";
 import { initializeSocket } from "./config/socket.js";
 import cookieParser from "cookie-parser";
+import fs from "fs";
 
 const app = express();
 
 // Middleware
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://localhost:5173",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   }),
@@ -23,11 +24,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-const server = http.createServer(app);
+const options = {
+  key: fs.readFileSync("server.key"),
+  cert: fs.readFileSync("server.cert"),
+};
+
+const server = https.createServer(options, app);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: "https://localhost:5173",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   },

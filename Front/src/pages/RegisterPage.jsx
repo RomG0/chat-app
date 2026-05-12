@@ -17,10 +17,13 @@ const RegisterPage = () => {
     setLoading(true);
 
     try {
-      const { data } = await axios.post("http://localhost:5000/api/auth/register", {
-        username,
-        password,
-      });
+      const { data } = await axios.post(
+        "https://localhost:5000/api/auth/register",
+        {
+          username,
+          password,
+        },
+      );
       localStorage.setItem("user", JSON.stringify(data.user));
       setUser(data.user);
       navigate("/");

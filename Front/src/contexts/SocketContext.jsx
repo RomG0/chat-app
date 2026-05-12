@@ -16,12 +16,14 @@ export const useSocket = () => {
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const socketRef = useRef(null);
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem("user") || "null"));
+  const [user, setUser] = useState(
+    JSON.parse(localStorage.getItem("user") || "null"),
+  );
 
   useEffect(() => {
     if (!user) return;
 
-    const newSocket = io("http://localhost:5000", {
+    const newSocket = io("https://localhost:5000", {
       withCredentials: true,
     });
 
