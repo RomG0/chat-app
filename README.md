@@ -14,22 +14,14 @@ docker build -t chat-client:latest ./Front
 ## Deploy
 
 ```bash
-kubectl apply -f k8s/all.yaml
+kubectl apply -f k8sDeployment.yaml
 ```
 
 ## Access
 
-- Client: http://localhost:30173
-- Server: https://localhost:5000 (internal)
+- Client: https://localhost:30173
+- Server: https://localhost:30000
 - MongoDB: mongodb:27017 (internal)
-
-## View Logs
-
-```bash
-kubectl logs -n chat-app mongodb
-kubectl logs -n chat-app server
-kubectl logs -n chat-app client
-```
 
 ## Stop
 
