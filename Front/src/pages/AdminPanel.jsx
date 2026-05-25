@@ -12,7 +12,7 @@ const AdminPanel = () => {
 
   const getAllUsers = async () => {
     try {
-      const res = await axios.get("https://localhost:5000/api/admin/getUsers");
+      const res = await axios.get("https://localhost:30000/api/admin/getUsers");
       if (res.status === 200) {
         setAllUsers(res.data.users);
       }
@@ -23,7 +23,7 @@ const AdminPanel = () => {
 
   const deleteUser = async (qUserId) => {
     try {
-      await axios.delete(`https://localhost:5000/api/admin/user/${qUserId}`);
+      await axios.delete(`https://localhost:30000/api/admin/user/${qUserId}`);
       setAllUsers((prevUsers) => prevUsers.filter((u) => u._id !== qUserId));
       setConnectedUsers((prevUsers) =>
         prevUsers.filter((u) => u.userId !== qUserId),
@@ -39,7 +39,7 @@ const AdminPanel = () => {
 
   const giveAdmin = async (qUserId) => {
     try {
-      await axios.put(`https://localhost:5000/api/admin/user/${qUserId}`);
+      await axios.put(`https://localhost:30000/api/admin/user/${qUserId}`);
       console.log("User is now an admin");
     } catch (err) {
       console.error("Error promoting user:", err.response?.data?.message);

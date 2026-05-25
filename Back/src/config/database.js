@@ -1,10 +1,7 @@
-import dns from "dns";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 
 dotenv.config();
-
-dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
 export const connectDB = async () => {
   try {

@@ -14,7 +14,9 @@ const HomePage = () => {
   useEffect(() => {
     const getMessages = async () => {
       try {
-        const res = await axios.get("https://localhost:5000/api/chat/messages");
+        const res = await axios.get(
+          "https://localhost:30000/api/chat/messages",
+        );
         if (res.data) {
           setMessages(res.data.messages);
         }

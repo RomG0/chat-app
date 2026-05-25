@@ -23,7 +23,7 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     if (!user) return;
 
-    const newSocket = io("https://localhost:5000", {
+    const newSocket = io("https://localhost:30000", {
       withCredentials: true,
     });
 

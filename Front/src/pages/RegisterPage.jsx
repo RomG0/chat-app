@@ -18,7 +18,7 @@ const RegisterPage = () => {
 
     try {
       const { data } = await axios.post(
-        "https://localhost:5000/api/auth/register",
+        "https://localhost:30000/api/auth/register",
         {
           username,
           password,
